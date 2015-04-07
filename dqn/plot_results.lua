@@ -13,30 +13,30 @@ data = torch.load(arg[1])
 --gnuplot.raw('set multiplot layout 2, 3')
 
 gnuplot.figure()
-gnuplot.title('Reward history')
+gnuplot.title('Average reward per game during testing')
 gnuplot.plot(torch.Tensor(data.reward_history))
 
 gnuplot.figure()
-gnuplot.title('Reward counts')
+gnuplot.title('Total count of rewards during testing')
 gnuplot.plot(torch.Tensor(data.reward_counts))
 
 gnuplot.figure()
-gnuplot.title('Episode counts')
+gnuplot.title('Number of games played during testing')
 gnuplot.plot(torch.Tensor(data.episode_counts))
 
---gnuplot.figure()
---gnuplot.title('Time history')
---gnuplot.plot(torch.Tensor(data.time_history))
-
 gnuplot.figure()
-gnuplot.title('V history')
+gnuplot.title('Average Q-value of validation set')
 gnuplot.plot(torch.Tensor(data.v_history))
 
 gnuplot.figure()
-gnuplot.title('TD history')
+gnuplot.title('TD error (old and new Q-value difference) of validation set')
 gnuplot.plot(torch.Tensor(data.td_history))
 
 gnuplot.figure()
-gnuplot.title('Qmax history')
-gnuplot.plot(torch.Tensor(data.qmax_history))
+gnuplot.title('Seconds elapsed after epoch')
+gnuplot.plot(torch.Tensor(data.time_history))
+
+--gnuplot.figure()
+--gnuplot.title('Qmax history')
+--gnuplot.plot(torch.Tensor(data.qmax_history))
 
