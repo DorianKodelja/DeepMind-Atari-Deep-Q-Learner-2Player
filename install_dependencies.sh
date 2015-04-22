@@ -44,7 +44,8 @@ echo "==> Torch7's dependencies have been installed"
 
 
 # Build and install Torch7
-cd /tmp
+mkdir -p $PREFIX/src
+cd $PREFIX/src
 rm -rf luajit-rocks
 git clone https://github.com/torch/luajit-rocks.git
 cd luajit-rocks
@@ -98,7 +99,7 @@ RET=$?; if [ $RET -ne 0 ]; then echo "Error. Exiting."; exit $RET; fi
 echo "nngraph installation completed"
 
 echo "Installing Xitari ... "
-cd /tmp
+cd $PREFIX/src
 rm -rf xitari
 git clone https://github.com/deepmind/xitari.git
 cd xitari
@@ -107,7 +108,7 @@ RET=$?; if [ $RET -ne 0 ]; then echo "Error. Exiting."; exit $RET; fi
 echo "Xitari installation completed"
 
 echo "Installing Alewrap ... "
-cd /tmp
+cd $PREFIX/src
 rm -rf alewrap
 git clone https://github.com/deepmind/alewrap.git
 cd alewrap
