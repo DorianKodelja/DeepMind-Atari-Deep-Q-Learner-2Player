@@ -4,6 +4,8 @@ Copyright (c) 2014 Google Inc.
 See LICENSE file for full terms of limited license.
 ]]
 
+gd = require "gd"
+
 if not dqn then
     require "initenv"
 end
@@ -49,45 +51,69 @@ local print = function(...)
     io.flush()
 end
 
-local q_history = {}
-local screen_history = {}
+-- derive file names from game name
+local gif_filename = "../images/" .. opt.env .. ".gif"
+local csv_filename = "../results/" .. opt.env .. ".csv"
+print(gif_filename, csv_filename)
 
-local total_reward = 0
-local nrewards = 0
-
+-- start a new game
 local screen, reward, terminal = game_env:newGame()
 
-local win = nil
+-- compress screen to JPEG with 100% quality
+local jpg = image.compressJPG(screen:squeeze(), 100)
+-- create gd image from JPEG string
+local im = gd.createFromJpegStr(jpg:storage():string())
+-- convert truecolor to palette
+im:trueColorToPalette(false, 256)
+
+-- write GIF header, use global palette and no looping
+im:gifAnimBegin(gif_filename, true, -1)
+im:gifAnimAdd(gif_filename, false, 0, 0, 7, gd.DISPOSAL_NONE)
+
+-- remember the image and show it first
+local previm = im
+local win = image.display({image=screen})
+
+-- open CSV file for writing and write header
+local csv_file = assert(io.open(csv_filename, "w"))
+csv_file:write('action;max_qvalue;reward;terminal\n')
+
+print("Started playing...")
 
 -- play one episode (game)
 while not terminal do
-    --agent.bestq = 0
-
+    -- if action was chosen randomly, Q-value is 0
+    agent.bestq = 0
+    
+    -- choose the best action
     local action_index = agent:perceive(reward, screen, terminal, true, 0.05)
 
-    q_history[#q_history + 1] = agent.bestq
-    screen_history[#screen_history + 1] = screen:clone()
+    -- play game in test mode (episodes don't end when losing a life)
+    screen, reward, terminal = game_env:step(game_actions[action_index], false)
 
     -- display screen
-    win = image.display({image=screen, win=win})
+    image.display({image=screen, win=win})
 
-    -- Play game in test mode (episodes don't end when losing a life)
-    screen, reward, terminal = game_env:step(game_actions[action_index])
+    -- create gd image from tensor
+    jpg = image.compressJPG(screen:squeeze(), 100)
+    im = gd.createFromJpegStr(jpg:storage():string())
+    
+    -- use palette from previous (first) image
+    im:trueColorToPalette(false, 256)
+    im:paletteCopy(previm)
 
-    -- record every reward
-    total_reward = total_reward + reward
-    if reward ~= 0 then
-       nrewards = nrewards + 1
-    end
+    -- write new GIF frame, no local palette, starting from left-top, 7ms delay
+    im:gifAnimAdd(gif_filename, false, 0, 0, 6, gd.DISPOSAL_NONE, previm)
+    -- remember previous screen for optimal compression
+    previm = im
+
+    -- write best Q-value for state to CSV file
+    csv_file:write(action_index .. ';' .. agent.bestq .. ';' .. reward .. ';' .. tostring(terminal) .. '\n')
 end
 
-print("Finished playing, saving results...")
+-- end GIF animation and close CSV file
+gd.gifAnimEnd(gif_filename)
+csv_file:close()
 
-local filename = opt.name
-torch.save(filename .. "_test.t7", {
-                        total_reward = total_reward,
-                        reward_count = nrewards,
-                        q_history = q_history,
-                        screen_history = screen_history,
-                        })
-print("Finished saving, close window to exit!")
+print("Finished playing, close window to exit!")
+
