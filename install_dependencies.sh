@@ -87,6 +87,7 @@ $PREFIX/bin/luarocks install image
 $PREFIX/bin/luarocks install env
 $PREFIX/bin/luarocks install qtlua
 $PREFIX/bin/luarocks install qttorch
+$PREFIX/bin/luarocks install luagd
 
 echo ""
 echo "=> Torch7 has been installed successfully"
