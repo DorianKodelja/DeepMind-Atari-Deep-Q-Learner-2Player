@@ -1,8 +1,14 @@
 # DeepMind Atari Deep Q Learner
-This repository hosts the [original code](https://sites.google.com/a/deepmind.com/dqn/) published along with [the article](http://www.nature.com/nature/journal/v518/n7540/full/nature14236.html) in Nature and my experiments (if any) with it.
 
-Tested on Ubuntu 14.04 with nVidia GTX 970:  
-![alt text](https://raw.githubusercontent.com/kuz/DeepMind-Atari-Deep-Q-Learner/master/images/breakout.gif "Playing Breakout")
+This repository hosts the [original code](https://sites.google.com/a/deepmind.com/dqn/) published along with [the article](http://www.nature.com/nature/journal/v518/n7540/full/nature14236.html) in Nature and my experiments with it.
+
+There are following tweaks to the original code:
+ * uses `qtlua` and `image.display()` to show game screen while training,
+ * `plot_results <game>` script to plot history recorded in model file,
+ * `test_gpu <game>` and `test_cpu <game>` scripts to play one session and record screens in animated GIF. These also record actions, Q-values and rewards in CSV file. The aim of this script is to reproduce [Extended Data Figure 2](http://www.nature.com/nature/journal/v518/n7540/fig_tab/nature14236_SF2.html) from the article. **NB!** If you trained your model with `run_gpu`, you must use `test_gpu` to test it, otherwise deserialization of the model fails.
+
+Thanks to [kuz](https://github.com/kuz) for providing starting point for this. Tested on Ubuntu 14.10 with nVidia GTX 750:  
+![alt text](https://raw.githubusercontent.com/tambetm/DeepMind-Atari-Deep-Q-Learner/master/sessions/breakout.gif "Playing Breakout")
 
 Here is the original README:
 
