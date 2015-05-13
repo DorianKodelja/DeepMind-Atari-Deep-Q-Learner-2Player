@@ -52,8 +52,8 @@ local print = function(...)
 end
 
 -- derive file names from game name
-local gif_filename = "../images/" .. opt.env .. ".gif"
-local csv_filename = "../results/" .. opt.env .. ".csv"
+local gif_filename = "../sessions/" .. opt.env .. ".gif"
+local csv_filename = "../sessions/" .. opt.env .. ".csv"
 print(gif_filename, csv_filename)
 
 -- start a new game
@@ -68,6 +68,7 @@ im:trueColorToPalette(false, 256)
 
 -- write GIF header, use global palette and no looping
 im:gifAnimBegin(gif_filename, true, -1)
+-- write first frame
 im:gifAnimAdd(gif_filename, false, 0, 0, 7, gd.DISPOSAL_NONE)
 
 -- remember the image and show it first
@@ -103,7 +104,7 @@ while not terminal do
     im:paletteCopy(previm)
 
     -- write new GIF frame, no local palette, starting from left-top, 7ms delay
-    im:gifAnimAdd(gif_filename, false, 0, 0, 6, gd.DISPOSAL_NONE, previm)
+    im:gifAnimAdd(gif_filename, false, 0, 0, 7, gd.DISPOSAL_NONE, previm)
     -- remember previous screen for optimal compression
     previm = im
 
