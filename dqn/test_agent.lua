@@ -66,8 +66,8 @@ local im = gd.createFromJpegStr(jpg:storage():string())
 -- convert truecolor to palette
 im:trueColorToPalette(false, 256)
 
--- write GIF header, use global palette and no looping
-im:gifAnimBegin(gif_filename, true, -1)
+-- write GIF header, use global palette and infinite looping
+im:gifAnimBegin(gif_filename, true, 0)
 -- write first frame
 im:gifAnimAdd(gif_filename, false, 0, 0, 7, gd.DISPOSAL_NONE)
 
