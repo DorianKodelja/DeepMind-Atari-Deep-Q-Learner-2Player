@@ -102,7 +102,7 @@ echo "nngraph installation completed"
 echo "Installing Xitari ... "
 cd $PREFIX/src
 rm -rf xitari
-git clone https://github.com/deepmind/xitari.git
+git clone https://github.com/tambetm/xitari.git
 cd xitari
 $PREFIX/bin/luarocks make
 RET=$?; if [ $RET -ne 0 ]; then echo "Error. Exiting."; exit $RET; fi
