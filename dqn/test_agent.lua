@@ -36,6 +36,8 @@ cmd:option('-verbose', 2,
            'the higher the level, the more information is printed to screen')
 cmd:option('-threads', 1, 'number of BLAS threads')
 cmd:option('-gpu', -1, 'gpu flag')
+cmd:option('-gif_file', '', 'GIF path to write session screens')
+cmd:option('-csv_file', '', 'CSV path to write session data')
 
 cmd:text()
 
@@ -51,9 +53,9 @@ local print = function(...)
     io.flush()
 end
 
--- derive file names from game name
-local gif_filename = "../sessions/" .. opt.env .. ".gif"
-local csv_filename = "../sessions/" .. opt.env .. ".csv"
+-- file names from command line
+local gif_filename = opt.gif_file
+local csv_filename = opt.csv_file
 print(gif_filename, csv_filename)
 
 -- start a new game
@@ -104,7 +106,7 @@ while not terminal do
     im:paletteCopy(previm)
 
     -- write new GIF frame, no local palette, starting from left-top, 7ms delay
-    im:gifAnimAdd(gif_filename, false, 0, 0, 7, gd.DISPOSAL_NONE, previm)
+    im:gifAnimAdd(gif_filename, false, 0, 0, 7, gd.DISPOSAL_NONE)
     -- remember previous screen for optimal compression
     previm = im
 
