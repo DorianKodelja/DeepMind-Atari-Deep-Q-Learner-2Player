@@ -40,11 +40,11 @@ cmd:option('-save_versions', 0, '')
 cmd:option('-steps', 10^5, 'number of training steps to perform')
 cmd:option('-eval_steps', 10^5, 'number of evaluation steps')
 
-cmd:option('-verbose', 2,
+cmd:option('-verbose', 4,
            'the higher the level, the more information is printed to screen')
 cmd:option('-threads', 1, 'number of BLAS threads')
 cmd:option('-gpu', -1, 'gpu flag')
-
+cmd:option('-gpuB',-1, 'gpu flag 2')
 cmd:text()
 
 local opt = cmd:parse(arg)
@@ -52,7 +52,6 @@ local opt = cmd:parse(arg)
 --- General setup.
 --local game_env, game_actions, agent, opt = setup2Player(opt,false)
 local game_env, game_actions,game_actionsB, agent,agentB, opt,optB = setup2(opt)
-
 -- override print to always flush the output
 local old_print = print
 local print = function(...)

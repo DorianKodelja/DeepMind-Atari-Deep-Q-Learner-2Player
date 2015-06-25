@@ -95,6 +95,8 @@ function torchSetup(_opt)
 end
 
 function torchSetup2(_opt,_optB)
+
+   
     _opt = _opt or {}
 
     local opt = table.copy(_opt)
@@ -137,7 +139,7 @@ function torchSetup2(_opt,_optB)
     end
     if optB.agent_params then
         optB.agent_params = str_to_table(optB.agent_params)
-        optB.agent_params.gpu       = optB.gpu
+        optB.agent_params.gpu       = optB.gpu+1
         optB.agent_params.best      = optB.best
         optB.agent_params.verbose   = optB.verbose
         if optB.network ~= '' then
@@ -336,9 +338,14 @@ function setup2(_opt)
     -- load training framework and environment
     local framework = require(opt.framework)
     assert(framework)
-
+--
+-- ici ca bug
+--
+    print("\n\n\n\n")
     local gameEnv = framework.GameEnvironment(opt)
+
     local gameActions = gameEnv:getActions()
+
     local gameActionsB = gameEnv:getActionsB()
 
     -- agent options
