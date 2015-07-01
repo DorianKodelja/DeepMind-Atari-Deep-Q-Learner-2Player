@@ -40,7 +40,7 @@ cmd:option('-save_versions', 0, '')
 cmd:option('-steps', 10^5, 'number of training steps to perform')
 cmd:option('-eval_steps', 10^5, 'number of evaluation steps')
 
-cmd:option('-verbose', 4,
+cmd:option('-verbose', 0,
            'the higher the level, the more information is printed to screen')
 cmd:option('-threads', 1, 'number of BLAS threads')
 cmd:option('-gpu', -1, 'gpu flag')
@@ -87,22 +87,23 @@ local total_rewardB
 local nrewardsB
 local episode_rewardB
 
-local screen, reward,rewardB, terminal = game_env:getState2()
+local screen, rewardA,rewardB, terminal = game_env:getState2()
 
-print("Iteration ..", step)
+
 local win = nil
 while step < opt.steps do
     step = step + 1
-    local action_index = agent:perceive(reward, screen, terminal)
+    local action_index = agent:perceive(rewardA, screen, terminal)
     local action_indexB = agentB:perceive(rewardB, screen, terminal)
     -- game over? get next game!
     if not terminal then
+        
         screen, reward,rewardB, terminal = game_env:step2(game_actions[action_index],game_actionsB[action_indexB], true)
     else
         if opt.random_starts > 0 then
-            screen, reward,rewardB, terminal = game_env:nextRandomGame2()
+            screen, rewardA,rewardB, terminal = game_env:nextRandomGame2()
         else
-            screen, reward,rewardB, terminal = game_env:newGame2()
+            screen, rewardA,rewardB, terminal = game_env:newGame2()
         end
     end
 
@@ -140,6 +141,8 @@ while step < opt.steps do
             local action_indexB = agentB:perceive(rewardB, screen, terminal, true, 0.05)
 
             -- Play game in test mode (episodes don't end when losing a life)
+            print(game_actions[action_index],game_actionsB[action_indexB])
+            assert(false)
             screen, reward,rewardB, terminal = game_env:step2(game_actions[action_index],game_actionsB[action_indexB])
 
             if estep%1000 == 0 then collectgarbage() end

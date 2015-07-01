@@ -277,7 +277,7 @@ function setup(_opt)
     local framework = require(opt.framework)
     assert(framework)
 
-    local gameEnv = framework.GameEnvironment(opt)
+    local gameEnv = framework.GameEnvironment(opt,false)
     local gameActions = gameEnv:getActions()
 
     -- agent options
@@ -308,7 +308,9 @@ end
 -- two player setup
 function setup2(_opt)
     assert(_opt)
-    
+    local _optB = _opt
+
+    _optB.name=_optB.nameB
     --preprocess options:
     --- convert options strings to tables
     _opt.pool_frms = str_to_table(_opt.pool_frms)
@@ -318,8 +320,7 @@ function setup2(_opt)
         _opt.agent_params.transition_params =
             str_to_table(_opt.agent_params.transition_params)
     end
-    local _optB = _opt
-    _optB.name=_optB.nameB
+    
 
     --preprocess options for player 2:
     --- convert options strings to tables
@@ -332,22 +333,21 @@ function setup2(_opt)
     end
 
     --- first things first
-    local opt = torchSetup2(_opt,_optB)
+    local opt,optB = torchSetup2(_opt,_optB)
 
 
     -- load training framework and environment
+
     local framework = require(opt.framework)
     assert(framework)
---
--- ici ca bug
---
-    print("\n\n\n\n")
-    local gameEnv = framework.GameEnvironment(opt)
+
+
+    local gameEnv = framework.GameEnvironment(opt,true)
 
     local gameActions = gameEnv:getActions()
-
+  
     local gameActionsB = gameEnv:getActionsB()
-
+    
     -- agent options
     _opt.agent_params.actions   = gameActions
     _opt.agent_params.gpu       = _opt.gpu
@@ -371,6 +371,10 @@ function setup2(_opt)
 
     -- agent 2 options
     _optB.agent_params.actions   = gameActionsB
+   -- for k, v in pairs(gameActionsB) do
+     --       print(k, v)
+    --end
+    --assert(false)
     _optB.agent_params.gpu       = _optB.gpu
     _optB.agent_params.best      = _optB.best
     if _optB.network ~= '' then
