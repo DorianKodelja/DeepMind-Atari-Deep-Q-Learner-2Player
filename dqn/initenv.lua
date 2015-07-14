@@ -4,7 +4,7 @@ Copyright (c) 2014 Google Inc.
 See LICENSE file for full terms of limited license.
 ]]
 dqn = {}
-
+dqnB ={}
 require 'torch'
 require 'nn'
 require 'nngraph'
@@ -12,6 +12,7 @@ require 'nnutils'
 require 'image'
 require 'Scale'
 require 'NeuralQLearner'
+require 'NeuralQLearnerB'
 require 'TransitionTable'
 require 'Rectifier'
 
@@ -245,6 +246,7 @@ function torchSetup2(_opt,_optB)
     if optB.verbose >= 1 then
         print('Torch Seed:', torch.initialSeed())
     end
+    torch.random()
     local firstRandInt = torch.random()
     if optB.gpu >= 0 then
         cutorch.manualSeed(firstRandInt)
@@ -308,9 +310,12 @@ end
 -- two player setup
 function setup2(_opt)
     assert(_opt)
-    local _optB = _opt
-
+    local _optB={}
+    _optB=table.copy(_opt)
     _optB.name=_optB.nameB
+    if _optB.networkB then 
+    _optB.network=_optB.networkB
+    end
     --preprocess options:
     --- convert options strings to tables
     _opt.pool_frms = str_to_table(_opt.pool_frms)
@@ -353,6 +358,7 @@ function setup2(_opt)
     _opt.agent_params.gpu       = _opt.gpu
     _opt.agent_params.best      = _opt.best
     if _opt.network ~= '' then
+        print("ca passe:",_opt.network)
         _opt.agent_params.network = _opt.network
     end
     _opt.agent_params.verbose = _opt.verbose
@@ -362,19 +368,11 @@ function setup2(_opt)
 
     local agent = dqn[_opt.agent](_opt.agent_params)
 
-    if opt.verbose >= 1 then
-        print('Set up Torch using these options:')
-        for k, v in pairs(opt) do
-            print(k, v)
-        end
-    end
+ 
 
     -- agent 2 options
     _optB.agent_params.actions   = gameActionsB
-   -- for k, v in pairs(gameActionsB) do
-     --       print(k, v)
-    --end
-    --assert(false)
+
     _optB.agent_params.gpu       = _optB.gpu
     _optB.agent_params.best      = _optB.best
     if _optB.network ~= '' then
@@ -385,17 +383,18 @@ function setup2(_opt)
         _optB.agent_params.state_dim = gameEnv:nObsFeature()
     end
 
-    local agent = dqn[_opt.agent](_opt.agent_params)
-    local agentB = dqn[_optB.agent](_optB.agent_params)
+    
+    local agentB = dqnB[_optB.agent](_optB.agent_params)
     if opt.verbose >= 1 then
         print('Set up Torch using these options for agent 1:')
         for k, v in pairs(opt) do
-            print(k, v)
+            print(k)
         end
         print('Set up Torch using these options for agent 2:')
         for k, v in pairs(optB) do
             print(k, v)
         end
+
     end
 
 

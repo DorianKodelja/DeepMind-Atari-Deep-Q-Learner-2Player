@@ -95,9 +95,9 @@ while step < opt.steps do
     step = step + 1
     local action_index = agent:perceive(rewardA, screen, terminal)
     local action_indexB = agentB:perceive(rewardB, screen, terminal)
+    
     -- game over? get next game!
     if not terminal then
-        
         screen, reward,rewardB, terminal = game_env:step2(game_actions[action_index],game_actionsB[action_indexB], true)
     else
         if opt.random_starts > 0 then
@@ -134,17 +134,13 @@ while step < opt.steps do
         nrewardsB = 0
         nepisodesB = 0
         episode_rewardB = 0
-
+        
         local eval_time = sys.clock()
         for estep=1,opt.eval_steps do
             local action_index = agent:perceive(reward, screen, terminal, true, 0.05)
             local action_indexB = agentB:perceive(rewardB, screen, terminal, true, 0.05)
-
             -- Play game in test mode (episodes don't end when losing a life)
-            print(game_actions[action_index],game_actionsB[action_indexB])
-            assert(false)
-            screen, reward,rewardB, terminal = game_env:step2(game_actions[action_index],game_actionsB[action_indexB])
-
+            screen, reward,rewardB, terminal = game_env:step2(game_actions[action_index],game_actionsB[action_indexB],false)
             if estep%1000 == 0 then collectgarbage() end
 
             -- record every reward
@@ -159,13 +155,11 @@ while step < opt.steps do
                nrewardsB = nrewardsB + 1
             end
 
+
             if terminal then
                 total_reward = total_reward + episode_reward
                 episode_reward = 0
                 nepisodes = nepisodes + 1
-                screen, reward, terminal = game_env:nextRandomGame()
-            end
-            if terminal then
                 total_rewardB = total_rewardB + episode_rewardB
                 episode_rewardB = 0
                 nepisodesB = nepisodesB + 1
@@ -178,6 +172,7 @@ while step < opt.steps do
         agent:compute_validation_statistics()
         agentB:compute_validation_statistics()
         local ind = #reward_history+1
+        
         total_reward = total_reward/math.max(1, nepisodes)
 
         if #reward_history == 0 or total_reward > torch.Tensor(reward_history):max() then
@@ -204,8 +199,8 @@ while step < opt.steps do
         end
 
 
-        print("A: V", v_history[ind], "TD error", td_history[ind], "Qmax", qmax_history[ind])
-        print("B: V ", v_history[ind], "TD error", td_history[ind], "Qmax", qmax_history[ind])
+        print("A:  ind:",ind," V", v_history[ind], "TD error", td_history[ind], "Qmax", qmax_history[ind])
+        print("B:  ind:",indB," V ", v_historyB[indB], "TD error", td_historyB[indB], "Qmax", qmax_historyB[indB])
         reward_history[ind] = total_reward
         reward_counts[ind] = nrewards
         episode_counts[ind] = nepisodes
@@ -299,7 +294,7 @@ while step < opt.steps do
             local netsB = {network=wB:clone():float()}
             torch.save(filenameB..'.params.t7', nets, 'ascii')
         end
-        agentB.valid_s, agentB.valid_a, agentB.valid_rB, agentB.valid_s2,
+        agentB.valid_s, agentB.valid_a, agentB.valid_r, agentB.valid_s2,
             agentB.valid_term = sB, aB, rB, s2B, termB
         agentB.w, agentB.dw, agentB.g, agentB.g2, agentB.delta, agentB.delta2,
             agentB.deltas, agentB.tmp = wB, dwB, gB, g2B, deltaB, delta2B, deltasB, tmpB
