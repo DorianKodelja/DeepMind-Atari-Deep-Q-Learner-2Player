@@ -40,11 +40,11 @@ cmd:option('-save_versions', 0, '')
 cmd:option('-steps', 10^5, 'number of training steps to perform')
 cmd:option('-eval_steps', 10^5, 'number of evaluation steps')
 
-cmd:option('-verbose', 2,
+cmd:option('-verbose', 0,
            'the higher the level, the more information is printed to screen')
 cmd:option('-threads', 1, 'number of BLAS threads')
 cmd:option('-gpu', -1, 'gpu flag')
-
+cmd:option('-gpuB',-1, 'gpu flag 2')
 cmd:text()
 
 local opt = cmd:parse(arg)
@@ -52,7 +52,6 @@ local opt = cmd:parse(arg)
 --- General setup.
 --local game_env, game_actions, agent, opt = setup2Player(opt,false)
 local game_env, game_actions,game_actionsB, agent,agentB, opt,optB = setup2(opt)
-
 -- override print to always flush the output
 local old_print = print
 local print = function(...)
@@ -61,49 +60,49 @@ local print = function(...)
 end
 
 local learn_start = agent.learn_start
-local learn_startB = agentB.learn_start
 local start_time = sys.clock()
-local reward_counts = {}
+local reward_countsA = {}
 local reward_countsB = {}
 local episode_counts = {}
-local episode_countsB = {}
 local time_history = {}
-local v_history = {}
+local v_historyA = {}
 local v_historyB = {}
-local qmax_history = {}
+local qmax_historyA = {}
 local qmax_historyB = {}
-local td_history = {}
+local td_historyA = {}
 local td_historyB = {}
-local reward_history = {}
+local reward_historyA = {}
 local reward_historyB = {}
 local step = 0
 time_history[1] = 0
 
-local total_reward
-local nrewards
+local total_rewardA
+local nrewardsA
 local nepisodes
-local episode_reward
+local episode_rewardA
 
 local total_rewardB
 local nrewardsB
 local episode_rewardB
 
-local screen, reward,rewardB, terminal = game_env:getState2()
+local screen, rewardA,rewardB, terminal = game_env:getState2()
 
-print("Iteration ..", step)
+
 local win = nil
 while step < opt.steps do
     step = step + 1
-    local action_index = agent:perceive(reward, screen, terminal)
+    local action_index = agent:perceive(rewardA, screen, terminal)
     local action_indexB = agentB:perceive(rewardB, screen, terminal)
+    
     -- game over? get next game!
     if not terminal then
-        screen, reward,rewardB, terminal = game_env:step2(game_actions[action_index],game_actionsB[action_indexB], true)
+        screen, rewardA,rewardB, terminal = game_env:step2(game_actions[action_index],game_actionsB[action_indexB], true)
+        print("reward A:", rewardA," : rewardB", rewardB)
     else
         if opt.random_starts > 0 then
-            screen, reward,rewardB, terminal = game_env:nextRandomGame2()
+            screen, rewardA,rewardB, terminal = game_env:nextRandomGame2()
         else
-            screen, reward,rewardB, terminal = game_env:newGame2()
+            screen, rewardA,rewardB, terminal = game_env:newGame2()
         end
     end
 
@@ -123,32 +122,29 @@ while step < opt.steps do
 
     if step % opt.eval_freq == 0 and step > learn_start then
 
-        screen, reward,rewardB, terminal = game_env:newGame2()
+        screen, rewardA,rewardB, terminal = game_env:newGame2()
 
-        total_reward = 0
-        nrewards = 0
+        total_rewardA = 0
+        nrewardsA = 0
         nepisodes = 0
-        episode_reward = 0
+        episode_rewardA = 0
 
         total_rewardB = 0
         nrewardsB = 0
-        nepisodesB = 0
         episode_rewardB = 0
-
+        
         local eval_time = sys.clock()
         for estep=1,opt.eval_steps do
-            local action_index = agent:perceive(reward, screen, terminal, true, 0.05)
+            local action_index = agent:perceive(rewardA, screen, terminal, true, 0.05)
             local action_indexB = agentB:perceive(rewardB, screen, terminal, true, 0.05)
-
             -- Play game in test mode (episodes don't end when losing a life)
-            screen, reward,rewardB, terminal = game_env:step2(game_actions[action_index],game_actionsB[action_indexB])
-
+            screen, rewardA,rewardB, terminal = game_env:step2(game_actions[action_index],game_actionsB[action_indexB],false)
             if estep%1000 == 0 then collectgarbage() end
 
             -- record every reward
-            episode_reward = episode_reward + reward
-            if reward ~= 0 then
-               nrewards = nrewards + 1
+            episode_rewardA = episode_rewardA + rewardA
+            if rewardA ~= 0 then
+               nrewardsA = nrewardsA + 1
             end
 
             -- record every reward for player 2
@@ -157,17 +153,14 @@ while step < opt.steps do
                nrewardsB = nrewardsB + 1
             end
 
+
             if terminal then
-                total_reward = total_reward + episode_reward
-                episode_reward = 0
+                total_rewardA = total_rewardA + episode_rewardA
+                episode_rewardA = 0
                 nepisodes = nepisodes + 1
-                screen, reward, terminal = game_env:nextRandomGame()
-            end
-            if terminal then
                 total_rewardB = total_rewardB + episode_rewardB
                 episode_rewardB = 0
-                nepisodesB = nepisodesB + 1
-                screen, reward,rewardB, terminal = game_env:nextRandomGame2()
+                screen, rewardA,rewardB, terminal = game_env:nextRandomGame2()
             end
         end
 
@@ -175,43 +168,44 @@ while step < opt.steps do
         start_time = start_time + eval_time
         agent:compute_validation_statistics()
         agentB:compute_validation_statistics()
-        local ind = #reward_history+1
-        total_reward = total_reward/math.max(1, nepisodes)
+        local ind = #reward_historyA+1
+        
+        total_rewardA = total_rewardA/math.max(1, nepisodes)
 
-        if #reward_history == 0 or total_reward > torch.Tensor(reward_history):max() then
+        if #reward_historyA == 0 or total_rewardA > torch.Tensor(reward_historyA):max() then
             agent.best_network = agent.network:clone()
         end
 
         if agent.v_avg then
-            v_history[ind] = agent.v_avg
-            td_history[ind] = agent.tderr_avg
-            qmax_history[ind] = agent.q_max
+            v_historyA[ind] = agent.v_avg
+            td_historyA[ind] = agent.tderr_avg
+            qmax_historyA[ind] = agent.q_max
         end
 
-        local indB = #reward_historyB+1
-        total_rewardB = total_rewardB/math.max(1, nepisodesB)
+        
+        total_rewardB = total_rewardB/math.max(1, nepisodes)
 
         if #reward_historyB == 0 or total_rewardB > torch.Tensor(reward_historyB):max() then
             agentB.best_network = agent.network:clone()
         end
 
         if agentB.v_avg then
-            v_historyB[indB] = agentB.v_avg
-            td_historyB[indB] = agentB.tderr_avg
-            qmax_historyB[indB] = agentB.q_max
+            v_historyB[ind] = agentB.v_avg
+            td_historyB[ind] = agentB.tderr_avg
+            qmax_historyB[ind] = agentB.q_max
         end
 
 
-        print("A: V", v_history[ind], "TD error", td_history[ind], "Qmax", qmax_history[ind])
-        print("B: V ", v_history[ind], "TD error", td_history[ind], "Qmax", qmax_history[ind])
-        reward_history[ind] = total_reward
-        reward_counts[ind] = nrewards
+        print("A:  ind:",ind," V", v_historyA[ind], "TD error", td_historyA[ind], "Qmax", qmax_historyA[ind])
+        print("B:  ind:",ind," V ", v_historyB[ind], "TD error", td_historyB[ind], "Qmax", qmax_historyB[ind])
+        reward_historyA[ind] = total_rewardA
+        reward_countsA[ind] = nrewardsA
         episode_counts[ind] = nepisodes
 
 
-        reward_historyB[indB] = total_rewardB
-        reward_countsB[indB] = nrewardsB
-        episode_countsB[indB] = nepisodesB
+        reward_historyB[ind] = total_rewardB
+        reward_countsB[ind] = nrewardsB
+
 
 
 
@@ -226,12 +220,12 @@ while step < opt.steps do
             '\nSteps: %d (frames: %d), rewardA: %.2f,rewardB: %.2f, epsilon: %.2f, lr: %G, ' ..
             'training time: %ds, training rate: %dfps, testing time: %ds, ' ..
             'testing rate: %dfps,  num. ep.: %d,  num. rewards A: %d,num. rewards B: %d',
-            step, step*opt.actrep, total_reward, total_rewardB,agent.ep, agent.lr, time_dif,
+            step, step*opt.actrep, total_rewardA, total_rewardB,agent.ep, agent.lr, time_dif,
             training_rate, eval_time, opt.actrep*opt.eval_steps/eval_time,
-            nepisodes, nrewards,nrewardsB))
-    end
-
-    if step % opt.save_freq == 0 or step == opt.steps then
+            nepisodes, nrewardsA,nrewardsB))
+   -- end
+	--Saving after every testing
+   -- if step % opt.save_freq == 0 or step == opt.steps then
         local s, a, r, s2, term = agent.valid_s, agent.valid_a, agent.valid_r,
             agent.valid_s2, agent.valid_term
         agent.valid_s, agent.valid_a, agent.valid_r, agent.valid_s2,
@@ -249,13 +243,13 @@ while step < opt.steps do
         torch.save(filename .. ".t7", {agent = agent,
                                 model = agent.network,
                                 best_model = agent.best_network,
-                                reward_history = reward_history,
-                                reward_counts = reward_counts,
+                               reward_history = reward_historyA,
+                                reward_counts = reward_countsA,
                                 episode_counts = episode_counts,
                                 time_history = time_history,
-                                v_history = v_history,
-                                td_history = td_history,
-                                qmax_history = qmax_history,
+                                v_history = v_historyA,
+                                td_history = td_historyA,
+                                qmax_history = qmax_historyA,
                                 arguments=opt})
 	if opt.saveNetworkParams then
             local nets = {network=w:clone():float()}
@@ -287,7 +281,7 @@ while step < opt.steps do
                                 best_model = agentB.best_network,
                                 reward_history = reward_historyB,
                                 reward_counts = reward_countsB,
-                                episode_counts = episode_countsB,
+                                episode_counts = episode_counts,
                                 time_history = time_history,
                                 v_history = v_historyB,
                                 td_history = td_historyB,
@@ -297,7 +291,7 @@ while step < opt.steps do
             local netsB = {network=wB:clone():float()}
             torch.save(filenameB..'.params.t7', nets, 'ascii')
         end
-        agentB.valid_s, agentB.valid_a, agentB.valid_rB, agentB.valid_s2,
+        agentB.valid_s, agentB.valid_a, agentB.valid_r, agentB.valid_s2,
             agentB.valid_term = sB, aB, rB, s2B, termB
         agentB.w, agentB.dw, agentB.g, agentB.g2, agentB.delta, agentB.delta2,
             agentB.deltas, agentB.tmp = wB, dwB, gB, g2B, deltaB, delta2B, deltasB, tmpB

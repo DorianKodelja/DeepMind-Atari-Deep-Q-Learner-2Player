@@ -4,11 +4,11 @@ Copyright (c) 2014 Google Inc.
 See LICENSE file for full terms of limited license.
 ]]
 
-if not dqn then
+if not dqnB then
     require 'initenv'
 end
 
-local nql = torch.class('dqn.NeuralQLearner')
+local nql = torch.class('dqnB.NeuralQLearner')
 
 
 function nql:__init(args)
@@ -83,7 +83,7 @@ function nql:__init(args)
             self.network = exp.model
         end
     else
-        print('Creating Agent Network from ' .. self.network)
+        print('Creating Agent Network B from ' .. self.network)
         self.network = err
         self.network = self:network()
     end
@@ -290,6 +290,8 @@ end
 
 
 function nql:compute_validation_statistics()
+    
+
     local targets, delta, q2_max = self:getQUpdate{s=self.valid_s,a=self.valid_a, r=self.valid_r, s2=self.valid_s2, term=self.valid_term}
     self.v_avg = self.q_max * q2_max:mean()
     self.tderr_avg = delta:clone():abs():mean()

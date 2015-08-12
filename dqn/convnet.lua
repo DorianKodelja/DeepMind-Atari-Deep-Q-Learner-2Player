@@ -7,7 +7,6 @@ See LICENSE file for full terms of limited license.
 require "initenv"
 
 function create_network(args)
-
     local net = nn.Sequential()
     net:add(nn.Reshape(unpack(args.input_dims)))
 
@@ -58,7 +57,7 @@ function create_network(args)
         net:cuda()
     end
     if args.verbose >= 2 then
-        print(net)
+        --print(net)
         print('Convolutional layers flattened output size:', nel)
     end
     return net
