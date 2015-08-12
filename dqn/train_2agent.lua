@@ -223,9 +223,9 @@ while step < opt.steps do
             step, step*opt.actrep, total_rewardA, total_rewardB,agent.ep, agent.lr, time_dif,
             training_rate, eval_time, opt.actrep*opt.eval_steps/eval_time,
             nepisodes, nrewardsA,nrewardsB))
-    end
-
-    if step % opt.save_freq == 0 or step == opt.steps then
+   -- end
+	--Saving after every testing
+   -- if step % opt.save_freq == 0 or step == opt.steps then
         local s, a, r, s2, term = agent.valid_s, agent.valid_a, agent.valid_r,
             agent.valid_s2, agent.valid_term
         agent.valid_s, agent.valid_a, agent.valid_r, agent.valid_s2,
