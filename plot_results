@@ -5,7 +5,7 @@ if [ -z "$1" ]
 fi
 
 agent_type="DQN3_0_1"
-agent_name=$agent_type"_"$1"_FULL_Y"
+agent_name=$agent_type"_"$1"_FULL_Y_B"
 network_file="$agent_name.t7"
 
 cd dqn
