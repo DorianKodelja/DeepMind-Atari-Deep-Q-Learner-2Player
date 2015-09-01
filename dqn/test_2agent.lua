@@ -5,7 +5,7 @@ See LICENSE file for full terms of limited license.
 ]]
 
 gd = require "gd"
-
+require "math"
 if not dqn then
     require "initenv"
 end
@@ -32,7 +32,7 @@ cmd:option('-network', '', 'reload pretrained network for agent 1')
 cmd:option('-networkB', '', 'reload pretrained network for agent 2')
 cmd:option('-agent', '', 'name of agent file to use')
 cmd:option('-agent_params', '', 'string of agent parameters')
-cmd:option('-seed', 1, 'fixed input seed for repeatable experiments')
+cmd:option('-seed', 3, 'fixed input seed for repeatable experiments')
 
 cmd:option('-verbose', 2,
            'the higher the level, the more information is printed to screen')
@@ -40,11 +40,12 @@ cmd:option('-threads', 1, 'number of BLAS threads')
 cmd:option('-gpu', -1, 'gpu flag')
 cmd:option('-gif_file', '', 'GIF path to write session screens')
 cmd:option('-csv_file', '', 'CSV path to write session data')
-
+cmd:option('-version', '', 'epoch of training')
+cmd:option('-datas_file', '', 'CSV path to write learning evaluation data')
 cmd:text()
 
 local opt = cmd:parse(arg)
-
+local clock = os.clock
 --- General setup.
 local game_env, game_actions,game_actionsB, agent,agentB, opt,optB = setup2(opt)
 
@@ -55,10 +56,12 @@ local print = function(...)
     io.flush()
 end
 
+local version=opt.version
 -- file names from command line
 local gif_filename = opt.gif_file
 local csv_filename = opt.csv_file
-print(gif_filename, csv_filename)
+local datas_filename=opt.datas_file
+print(gif_filename, csv_filename, datas_filename)
 
 -- start a new game
 local screen, rewardA,rewardB, terminal = game_env:newGame2()
@@ -82,11 +85,18 @@ local win = image.display({image=screen})
 -- open CSV file for writing and write header
 local csv_file = assert(io.open(csv_filename, "w"))
 csv_file:write('actionA;ActionB;max_qvalueA;max_qvalueB;rewardA;rewardB;terminal\n')
-
+local datas_file = assert(io.open(datas_filename, "a+"))
+datas_file:write('training Epoch;Seed;WallBounces;SideBounce;Points;ServingTime\n')
 print("Started playing...")
-
+previousScore=0
+totalSideBounce=0
+previousWallBounce=false
+totalWallBounce=0
+previousSideBounce=0
+servingTime=0
+previousServing=false
 -- play one episode (game)
-while not terminal do
+while not terminal and not crash do
     -- if action was chosen randomly, Q-value is 0
     agent.bestq = 0
     agentB.bestq = 0
@@ -95,7 +105,25 @@ while not terminal do
     local action_index = agent:perceive(rewardA, screen, terminal, true, 0.01)
     local action_indexB = agentB:perceive(rewardB, screen, terminal, true, 0.01)
     -- play game in test mode (episodes don't end when losing a life)
-    screen, rewardA,rewardB, terminal = game_env:step2(game_actions[action_index],game_actionsB[action_indexB], false)
+    if (sideBouncing>120) then action_index,action_indexB = 4,4 end
+    screen, rewardA,rewardB, terminal, sideBouncing,wallBouncing,points,crash,serving = game_env:step2(game_actions[action_index],game_actionsB[action_indexB], false)
+    --gather statisticts for one ball
+    if (wallBouncing==true and previousWallBounce==false) then
+        totalWallBounce=totalWallBounce+1 
+    end
+    previousWallBounce=wallBouncing
+    if (points>previousScore) then
+        totalSideBounce=totalSideBounce+ sideBouncing
+        previousScore=points
+    end
+    local t0 = clock()
+    if(serving==true and  previousServing==false) then timer=clock() end
+    if (serving==false and previousServing==true) then servingTime=servingTime+clock() - timer end
+    previousServing=serving
+    print("servingTime",servingTime)
+
+    --while clock() - t0 <= 0.1 do end
+    
 
     -- display screen
     image.display({image=screen, win=win})
@@ -115,11 +143,18 @@ while not terminal do
 
     -- write best Q-value for state to CSV file
     csv_file:write(action_index .. ';' ..action_indexB .. ';' .. agent.bestq .. ';' .. agentB.bestq .. ';' .. rewardA .. ';'.. rewardB .. ';' .. tostring(terminal) .. '\n')
+    --print(previousScore.." / "..points.." bounce ",totalSideBounce,":"..totalWallBounce)
+    
 end
+--print("final "..previousScore.." / "..points.." bounce ",totalSideBounce,":"..totalWallBounce)
+datas_file:write(""..version..";"..opt.seed..";"..totalWallBounce..";"..totalSideBounce..";"..previousScore..";"..servingTime..";\n")
+
+datas_file:close()
 
 -- end GIF animation and close CSV file
 gd.gifAnimEnd(gif_filename)
 csv_file:close()
 
 print("Finished playing, close window to exit!")
+assert(false)
 
