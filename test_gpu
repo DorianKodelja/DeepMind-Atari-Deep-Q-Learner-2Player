@@ -26,6 +26,7 @@ lr=0.00025
 agent_type="DQN3_0_1"
 preproc_net="\"net_downsample_2x_full_y\""
 agent_name=$agent_type"_"$1"_FULL_Y"
+
 if [ -z "$2" ]; then
   network_file="$agent_name.t7"
   gif_file="../sessions/$ENV.gif"
@@ -43,7 +44,7 @@ random_starts=30
 pool_frms="type="$pool_frms_type",size="$pool_frms_size
 num_threads=4
 
-args="-framework $FRAMEWORK -game_path $game_path -name $agent_name -env $ENV -env_params $env_params -agent $agent -agent_params $agent_params -actrep $actrep -gpu $gpu -random_starts $random_starts -pool_frms $pool_frms -seed $seed -threads $num_threads -verbose 1 -network $network_file -gif_file $gif_file -csv_file $csv_file"
+args="-framework $FRAMEWORK -game_path $game_path -name $agent_name -nameB $agent_nameB -env $ENV -env_params $env_params -agent $agent -agent_params $agent_params -actrep $actrep -gpu $gpu -random_starts $random_starts -pool_frms $pool_frms -seed $seed -threads $num_threads -verbose 1 -network $network_file -gif_file $gif_file -csv_file $csv_file"
 echo $args
 
 cd dqn

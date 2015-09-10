@@ -55,16 +55,18 @@ random_starts=30
 pool_frms="type="$pool_frms_type",size="$pool_frms_size
 num_threads=4
 cd dqn
-for j in {0..60..5}
+#for j in {118..200..5}
+#do
+j=35
+network_file="${agent_name}_$j.t7"
+network_fileB="${agent_nameB}_$j.t7"
+for i in {1..10}
 do
-	network_file="${agent_name}_$j.t7"
-        network_fileB="${agent_nameB}_$j.t7"
-	for i in {1..5}
-	do
-	  
-	  args="-framework $FRAMEWORK -game_path $game_path -name $agent_name -nameB $agent_nameB -env $ENV -env_params $env_params -agent $agent -agent_params $agent_params -actrep $actrep -gpu $gpu -random_starts $random_starts -pool_frms $pool_frms -seed $i -threads $num_threads -verbose 1 -network $network_file -networkB $network_fileB -gif_file $gif_file -csv_file $csv_file -version $j -datas_file $datas_file"
-	  ../torch/bin/qlua test_2agent.lua $args
-	done
+  
+  args="-framework $FRAMEWORK -game_path $game_path -name $agent_name -nameB $agent_nameB -env $ENV -env_params $env_params -agent $agent -agent_params $agent_params -actrep $actrep -gpu $gpu -random_starts $random_starts -pool_frms $pool_frms -seed $i -threads $num_threads -verbose 1 -network $network_file -networkB $network_fileB -gif_file $gif_file -csv_file $csv_file -version $j -datas_file $datas_file"
+  ../torch/bin/qlua test_2agent.lua $args
 done
+#break
+#done
 
 

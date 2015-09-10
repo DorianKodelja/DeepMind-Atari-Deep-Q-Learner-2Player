@@ -86,7 +86,7 @@ local win = image.display({image=screen})
 local csv_file = assert(io.open(csv_filename, "w"))
 csv_file:write('actionA;ActionB;max_qvalueA;max_qvalueB;rewardA;rewardB;terminal\n')
 local datas_file = assert(io.open(datas_filename, "a+"))
-datas_file:write('training Epoch;Seed;WallBounces;SideBounce;Points;ServingTime\n')
+if opt.seed==1 then datas_file:write('training Epoch;Seed;WallBounces;SideBounce;Points;ServingTime\n') end
 print("Started playing...")
 previousScore=0
 totalSideBounce=0
@@ -94,7 +94,6 @@ previousWallBounce=false
 totalWallBounce=0
 previousSideBounce=0
 servingTime=0
-previousServing=false
 -- play one episode (game)
 while not terminal and not crash do
     -- if action was chosen randomly, Q-value is 0
@@ -105,24 +104,22 @@ while not terminal and not crash do
     local action_index = agent:perceive(rewardA, screen, terminal, true, 0.01)
     local action_indexB = agentB:perceive(rewardB, screen, terminal, true, 0.01)
     -- play game in test mode (episodes don't end when losing a life)
-    if (sideBouncing>120) then action_index,action_indexB = 4,4 end
     screen, rewardA,rewardB, terminal, sideBouncing,wallBouncing,points,crash,serving = game_env:step2(game_actions[action_index],game_actionsB[action_indexB], false)
     --gather statisticts for one ball
+    -- wallbouncing true when the ball is touching the wall, but we want to count only when it turn true
     if (wallBouncing==true and previousWallBounce==false) then
         totalWallBounce=totalWallBounce+1 
     end
     previousWallBounce=wallBouncing
-    if (points>previousScore) then
-        totalSideBounce=totalSideBounce+ sideBouncing
-        previousScore=points
+    
+    if (previousSideBounce<sideBouncing) then
+        totalSideBounce=totalSideBounce+1
     end
-    local t0 = clock()
-    if(serving==true and  previousServing==false) then timer=clock() end
-    if (serving==false and previousServing==true) then servingTime=servingTime+clock() - timer end
-    previousServing=serving
-    print("servingTime",servingTime)
-
-    --while clock() - t0 <= 0.1 do end
+    previousSideBounce=sideBouncing
+    if(serving==true) then 
+    	servingTime=servingTime+opt.actrep 
+    end
+   
     
 
     -- display screen
@@ -146,8 +143,8 @@ while not terminal and not crash do
     --print(previousScore.." / "..points.." bounce ",totalSideBounce,":"..totalWallBounce)
     
 end
---print("final "..previousScore.." / "..points.." bounce ",totalSideBounce,":"..totalWallBounce)
-datas_file:write(""..version..";"..opt.seed..";"..totalWallBounce..";"..totalSideBounce..";"..previousScore..";"..servingTime..";\n")
+print("final "..previousScore.." / "..points.." bounce ",totalSideBounce,":"..totalWallBounce)
+datas_file:write(""..version..";"..opt.seed..";"..totalWallBounce..";"..totalSideBounce..";"..points..";"..servingTime..";\n")
 
 datas_file:close()
 
