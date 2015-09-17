@@ -40,7 +40,7 @@ end
 -- Build a string of average absolute weight values for the modules in the
 -- given network.
 function get_weight_norms(module)
-    return "Weight norms:\n" .. recursive_map(module, "weight", abs_mean) ..
+    return "\n\nWeight norms:\n" .. recursive_map(module, "weight", abs_mean) ..
             "\nWeight max:\n" .. recursive_map(module, "weight", abs_max)
 end
 

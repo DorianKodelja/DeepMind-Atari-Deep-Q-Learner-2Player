@@ -55,9 +55,8 @@ random_starts=30
 pool_frms="type="$pool_frms_type",size="$pool_frms_size
 num_threads=4
 cd dqn
-#for j in {118..200..5}
-#do
-j=35
+#for j in {1..35}; do
+j=$2
 network_file="${agent_name}_$j.t7"
 network_fileB="${agent_nameB}_$j.t7"
 for i in {1..10}

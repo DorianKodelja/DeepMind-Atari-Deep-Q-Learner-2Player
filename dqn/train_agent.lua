@@ -39,7 +39,7 @@ cmd:option('-save_versions', 0, '')
 cmd:option('-steps', 10^5, 'number of training steps to perform')
 cmd:option('-eval_steps', 10^5, 'number of evaluation steps')
 
-cmd:option('-verbose', 2,
+cmd:option('-verbose', 1,
            'the higher the level, the more information is printed to screen')
 cmd:option('-threads', 1, 'number of BLAS threads')
 cmd:option('-gpu', -1, 'gpu flag')
@@ -77,7 +77,6 @@ local episode_reward
 
 local screen, reward, terminal = game_env:getState()
 
-print("Iteration ..", step)
 local win = nil
 while step < opt.steps do
     step = step + 1
@@ -86,6 +85,9 @@ while step < opt.steps do
     -- game over? get next game!
     if not terminal then
         screen, reward, terminal = game_env:step(game_actions[action_index], true)
+	if reward ~= 0 then
+		print(reward)
+	end
     else
         if opt.random_starts > 0 then
             screen, reward, terminal = game_env:nextRandomGame()
