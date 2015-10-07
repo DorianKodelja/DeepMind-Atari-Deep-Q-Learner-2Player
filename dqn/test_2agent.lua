@@ -86,7 +86,7 @@ local win = image.display({image=screen})
 local csv_file = assert(io.open(csv_filename, "w"))
 csv_file:write('actionA;ActionB;max_qvalueA;max_qvalueB;rewardA;rewardB;terminal\n')
 local datas_file = assert(io.open(datas_filename, "a+"))
-if opt.seed==1 then datas_file:write('training Epoch;Seed;WallBounces;SideBounce;Points;ServingTime\n') end
+if opt.seed==1 then datas_file:write('training Epoch;Seed;WallBounces;SideBounce;Points;ServingTime;RewardA;RewardB\n') end
 print("Started playing...")
 previousScore=0
 totalSideBounce=0
@@ -94,6 +94,8 @@ previousWallBounce=false
 totalWallBounce=0
 previousSideBounce=0
 servingTime=0
+totalRewardA = 0
+totalRewardB = 0
 -- play one episode (game)
 while not terminal and not crash do
     -- if action was chosen randomly, Q-value is 0
@@ -103,8 +105,18 @@ while not terminal and not crash do
     -- choose the best action
     local action_index = agent:perceive(rewardA, screen, terminal, true, 0.01)
     local action_indexB = agentB:perceive(rewardB, screen, terminal, true, 0.01)
+    --if agent.bestq == 0 then
+    --  print("A random action: " .. action_index)
+    --else
+    --  print("A agent action: " .. action_index)
+    --end
     -- play game in test mode (episodes don't end when losing a life)
     screen, rewardA,rewardB, terminal, sideBouncing,wallBouncing,points,crash,serving = game_env:step2(game_actions[action_index],game_actionsB[action_indexB], false)
+    if rewardA ~= 0 or rewardB ~= 0 then
+       print(rewardA, rewardB, points)
+    end
+    totalRewardA = totalRewardA + rewardA
+    totalRewardB = totalRewardB + rewardB
     --gather statisticts for one ball
     -- wallbouncing true when the ball is touching the wall, but we want to count only when it turn true
     if (wallBouncing==true and previousWallBounce==false) then
@@ -144,7 +156,7 @@ while not terminal and not crash do
     
 end
 print("final "..previousScore.." / "..points.." bounce ",totalSideBounce,":"..totalWallBounce)
-datas_file:write(""..version..";"..opt.seed..";"..totalWallBounce..";"..totalSideBounce..";"..points..";"..servingTime..";\n")
+datas_file:write(""..version..";"..opt.seed..";"..totalWallBounce..";"..totalSideBounce..";"..points..";"..servingTime..";"..totalRewardA..";"..totalRewardB.."\n")
 
 datas_file:close()
 

@@ -1,12 +1,12 @@
 #!/bin/bash
 
-if [ -z "$1" ]
-  then echo "Please provide the name of the game, e.g.  $0 breakout "; exit 0
+if [ -z "$1" -o -z "$2" ]
+  then echo "Please provide the name of the game, e.g.  $0 breakout <version>"; exit 0
 fi
 
 agent_type="DQN3_0_1"
-agent_name=$agent_type"_"$1"_FULL_Y_A"
-agent_nameB=$agent_type"_"$1"_FULL_Y_B"
+agent_name=$agent_type"_"$1"_FULL_Y_A_"$2
+agent_nameB=$agent_type"_"$1"_FULL_Y_B_"$2
 network_file="$agent_name.t7"
 network_fileB="$agent_nameB.t7"
 
