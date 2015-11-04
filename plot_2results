@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ -z "$1" -o -z "$2" ]
+  then echo "Please provide the name of the game, e.g.  $0 breakout <version>"; exit 0
+fi
+
+agent_type="DQN3_0_1"
+agent_name=$agent_type"_"$1"_FULL_Y_A_"$2
+agent_nameB=$agent_type"_"$1"_FULL_Y_B_"$2
+network_file="$agent_name.t7"
+network_fileB="$agent_nameB.t7"
+
+cd dqn
+../torch/bin/luajit plot_results.lua $network_file '1'
+../torch/bin/luajit plot_results.lua $network_fileB '2'

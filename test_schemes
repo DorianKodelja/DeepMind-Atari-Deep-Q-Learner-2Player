@@ -1,0 +1,6 @@
+./test_gpu2_seeds Pong2Player0 49
+./test_gpu2_seeds Pong2Player05 49
+./test_gpu2_seeds Pong2Player025 49
+./test_gpu2_seeds Pong2Player075 49
+./test_gpu2_seeds Pong2Player 49
+./test_gpu2_seeds Pong2PlayerVS 49

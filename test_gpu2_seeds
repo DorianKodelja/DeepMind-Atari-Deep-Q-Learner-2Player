@@ -1,8 +1,9 @@
 #!/bin/bash
 
 if [ -z "$1" ]
-  then echo "Please provide the name of the game, e.g.  ./run_gpu breakout [<version>] [<seed>]"; exit 0
+  then echo "Please provide the name of the game, e.g.  ./run_gpu breakout [<version>] [<maxseed>]"; exit 0
 fi
+
 ENV=$1
 FRAMEWORK="alewrap"
 
@@ -14,13 +15,6 @@ netfile="\"convnet_atari3\""
 update_freq=4
 actrep=4
 discount=0.99
-seed=3
-if [ -z "$3" ]; then
-  seed=1
-else
-  seed=$3
-  
-fi
 learn_start=0
 pool_frms_type="\"max\""
 pool_frms_size=2
@@ -54,7 +48,18 @@ gpu=0
 random_starts=30
 pool_frms="type="$pool_frms_type",size="$pool_frms_size
 num_threads=4
+
+if [ -z "$3" ]; then
+  maxseed=10
+else
+  maxseed=$3
+fi
+
 cd dqn
-args="-framework $FRAMEWORK -game_path $game_path -name $agent_name -nameB $agent_nameB -env $ENV -env_params $env_params -agent $agent -agent_params $agent_params -actrep $actrep -gpu $gpu -random_starts $random_starts -pool_frms $pool_frms -seed $seed -threads $num_threads -verbose 1 -network $network_file -networkB $network_fileB -gif_file $gif_file -csv_file $csv_file -version $version -datas_file $datas_file"
+for seed in `seq $maxseed`
+do
+  echo $seed
+  args="-framework $FRAMEWORK -game_path $game_path -name $agent_name -nameB $agent_nameB -env $ENV -env_params $env_params -agent $agent -agent_params $agent_params -actrep $actrep -gpu $gpu -random_starts $random_starts -pool_frms $pool_frms -seed $seed -threads $num_threads -verbose 1 -network $network_file -networkB $network_fileB -gif_file $gif_file -csv_file $csv_file -version $version -datas_file $datas_file"
   ../torch/bin/qlua test_2agent.lua $args
+done
 

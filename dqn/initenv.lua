@@ -358,7 +358,6 @@ function setup2(_opt)
     _opt.agent_params.gpu       = _opt.gpu
     _opt.agent_params.best      = _opt.best
     if _opt.network ~= '' then
-        print("ca passe:",_opt.network)
         _opt.agent_params.network = _opt.network
     end
     _opt.agent_params.verbose = _opt.verbose

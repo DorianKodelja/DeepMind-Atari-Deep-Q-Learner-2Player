@@ -26,7 +26,8 @@ cmd:option('-random_starts', 0, 'play action 0 between 1 and random_starts ' ..
 
 cmd:option('-name', '', 'filename used for saving network and training history')
 cmd:option('-nameB', '', 'filename used for saving network and training history for the second player')
-cmd:option('-network', '', 'reload pretrained network')
+cmd:option('-network', '', 'reload pretrained network for agent 1')
+cmd:option('-networkB', '', 'reload pretrained network for agent 2')
 cmd:option('-agent', '', 'name of agent file to use')
 cmd:option('-agent_params', '', 'string of agent parameters')
 cmd:option('-seed', 1, 'fixed input seed for repeatable experiments')
@@ -97,7 +98,7 @@ while step < opt.steps do
     -- game over? get next game!
     if not terminal then
         screen, rewardA,rewardB, terminal = game_env:step2(game_actions[action_index],game_actionsB[action_indexB], true)
-        print("reward A:", rewardA," : rewardB", rewardB)
+        --print("reward A:", rewardA," : rewardB", rewardB)
     else
         if opt.random_starts > 0 then
             screen, rewardA,rewardB, terminal = game_env:nextRandomGame2()
