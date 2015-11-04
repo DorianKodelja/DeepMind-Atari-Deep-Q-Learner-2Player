@@ -145,8 +145,8 @@ while not terminal and not crash do
     im:trueColorToPalette(false, 256)
     im:paletteCopy(previm)
 
-    -- write new GIF frame, no local palette, starting from left-top, 7ms delay
-    im:gifAnimAdd(gif_filename, false, 0, 0, 7, gd.DISPOSAL_NONE)
+    -- write new GIF frame, no local palette, starting from left-top, 0.06s delay
+    im:gifAnimAdd(gif_filename, false, 0, 0, 6, gd.DISPOSAL_NONE)
     -- remember previous screen for optimal compression
     previm = im
 
