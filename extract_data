@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "Please provide the name of the game, e.g.  $0 breakout [version]"; exit 0
+fi
+
+agenta_file="DQN3_0_1_"$1"_FULL_Y_A"
+agentb_file="DQN3_0_1_"$1"_FULL_Y_B"
+
+if [ "$2" ]; then
+  agenta_file=$agenta_file"_"$2
+  agentb_file=$agentb_file"_"$2
+fi
+
+agenta_file=$agenta_file".t7"
+agentb_file=$agentb_file".t7"
+
+cd dqn
+../torch/bin/luajit extract_data.lua $agenta_file >${1}_history_A.csv
+../torch/bin/luajit extract_data.lua $agentb_file >${1}_history_B.csv
+
