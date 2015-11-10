@@ -54,13 +54,18 @@ epochs = [np.array(a) for a in epochs]
 means = [np.array(a) for a in means]
 stds = [np.array(a) for a in stds]
 
+mpl.rcParams['xtick.labelsize'] = 'smaller'
+mpl.rcParams['ytick.labelsize'] = 'smaller'
+mpl.rcParams['axes.labelsize'] = 'small'
+mpl.rcParams['legend.fontsize'] = 'small'
+
 dpi = 300
 plt.figure(figsize=(4,3))
 
 for i, file_name in enumerate(csv_files):
   #plt.errorbar(epochs[i][10:], means[i][10:,1], yerr=stds[i][10:,1])
   plt.plot(epochs[i][10:], means[i][10:,1])
-plt.ylabel("Wallbounces per paddletouch")
+plt.ylabel("Wallbounces per paddlebounce")
 plt.xlabel("Epoch")
 lgd = plt.legend(labels, loc="lower center", bbox_to_anchor=(0.43, 1.),
            ncol=2, columnspacing=1, frameon=False)
@@ -71,7 +76,7 @@ plt.clf()
 for i, file_name in enumerate(csv_files):
   #plt.errorbar(epochs[i], means[i][:,1], yerr=stds[i][:,1])
   plt.plot(epochs[i], means[i][:,0])
-plt.ylabel("Paddletouches per point")
+plt.ylabel("Paddlebounces per point")
 plt.xlabel("Epoch")
 #ax = plt.gca()
 #ax.set_yscale("log")
@@ -93,28 +98,28 @@ plt.savefig('serving_time_history.png', dpi=dpi, bbox_extra_artists=(lgd,), bbox
 
 plt.clf()
 plt.plot(epochs[0][10:], means[0][10:,1])
-plt.ylabel("Wallbounces per paddletouch")
+plt.ylabel("Wallbounces per paddlebounce")
 plt.xlabel("Epoch")
 plt.tight_layout()
 plt.savefig('wallbounces_history_cooperative.png', dpi=dpi)
 
 plt.clf()
 plt.plot(epochs[1][10:], means[1][10:,1])
-plt.ylabel("Wallbounces per paddletouch")
+plt.ylabel("Wallbounces per paddlebounce")
 plt.xlabel("Epoch")
 plt.tight_layout()
 plt.savefig('wallbounces_history_competitive.png', dpi=dpi)
 
 plt.clf()
 plt.plot(epochs[0], means[0][:,0])
-plt.ylabel("Paddletouches per point")
+plt.ylabel("Paddlebounces per point")
 plt.xlabel("Epoch")
 plt.tight_layout()
 plt.savefig('sidebounces_history_cooperative.png', dpi=dpi)
 
 plt.clf()
 plt.plot(epochs[1], means[1][:,0])
-plt.ylabel("Paddletouches per point")
+plt.ylabel("Paddlebounces per point")
 plt.xlabel("Epoch")
 plt.tight_layout()
 plt.savefig('sidebounces_history_competitive.png', dpi=dpi)
