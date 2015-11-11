@@ -83,17 +83,53 @@ plt.tight_layout()
 plt.savefig('wallbounces_history.png', dpi=dpi, bbox_extra_artists=(lgd,), bbox_inches='tight')
 
 plt.clf()
+#f, (ax1, ax2) = plt.subplots(2, 1, sharex=True, figsize=(4,3))
+#ax = plt.subplot2grid((2,2), (0,0), rowspan=2)
+#ax1 = plt.subplot2grid((2,2), (0,1))
+#ax2 = plt.subplot2grid((2,2), (1,1))
+f = plt.figure(figsize=(4,3))
+ax = f.add_subplot(111)    # The big subplot
+ax1 = f.add_subplot(211)
+ax2 = f.add_subplot(212)
 for i, file_name in enumerate(csv_files):
   #plt.errorbar(epochs[i], means[i][:,1], yerr=stds[i][:,1])
-  plt.plot(epochs[i], means[i][:,0])
-plt.locator_params(axis='y', nbins=5)
-plt.ylabel("Paddle-bounces per point")
-plt.xlabel("Epoch")
+  ax1.plot(epochs[i], means[i][:,0])
+  ax2.plot(epochs[i], means[i][:,0])
+
+ax1.set_ylim(16, 400)
+ax2.set_ylim(0, 11)
+ax1.spines['bottom'].set_visible(False)
+ax2.spines['top'].set_visible(False)
+ax1.xaxis.tick_top()
+ax1.tick_params(labeltop='off')  # don't put tick labels at the top
+ax2.xaxis.tick_bottom()
+ax1.locator_params(axis='y', nbins=3)
+ax2.locator_params(axis='y', nbins=3)
+
+d = .015  # how big to make the diagonal lines in axes coordinates
+# arguments to pass plot, just so we don't keep repeating them
+kwargs = dict(transform=ax1.transAxes, color='k', clip_on=False)
+ax1.plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+ax1.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+
+kwargs.update(transform=ax2.transAxes)  # switch to the bottom axes
+ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+
+ax.spines['top'].set_color('none')
+ax.spines['bottom'].set_color('none')
+ax.spines['left'].set_color('none')
+ax.spines['right'].set_color('none')
+ax.tick_params(labelcolor='w', top='off', bottom='off', left='off', right='off')
+
+ax.set_ylabel("Paddle-bounces per point", labelpad=10)
+ax.set_xlabel("Epoch")
 #ax = plt.gca()
 #ax.set_yscale("log")
-lgd = plt.legend(labels, loc="lower center", bbox_to_anchor=(0.43, 1.),
+lgd = ax1.legend(labels, loc="lower center", bbox_to_anchor=(0.43, 1.),
            ncol=2, columnspacing=1, frameon=False)
 plt.tight_layout()
+f.subplots_adjust(hspace=0.1)
 plt.savefig('sidebounces_history.png', dpi=dpi, bbox_extra_artists=(lgd,), bbox_inches='tight')
 
 plt.clf()
