@@ -13,8 +13,9 @@ csv_files = [
   "Pong2Player",
 ]
 
-mpl.rcParams['xtick.labelsize'] = 'smaller'
-mpl.rcParams['ytick.labelsize'] = 'smaller'
+mpl.rcParams['lines.linewidth'] = 2
+mpl.rcParams['xtick.labelsize'] = 'small'
+mpl.rcParams['ytick.labelsize'] = 'small'
 mpl.rcParams['axes.labelsize'] = 'small'
 mpl.rcParams['legend.fontsize'] = 'small'
 

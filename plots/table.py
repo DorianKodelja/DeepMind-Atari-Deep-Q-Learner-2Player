@@ -28,7 +28,7 @@ labels = [
 stats = []
 with open("stats.tex","w") as output: 
     #output.write("\hline\n")
-    #output.write("Agent & Average paddlebounces per point & Average wallbounces per paddlebounce & Average serving time per point \\\\\n")
+    #output.write("Agent & Average paddle-bounces per point & Average wall-bounces per paddle-bounce & Average serving time per point \\\\\n")
     #output.write("\hline\n")
     for csv_file, label in csv_files:
         with open(csv_file, 'rb') as input:
@@ -53,7 +53,7 @@ with open("stats.tex","w") as output:
 
           sideBouncePerPoint = map(lambda x, y: x / y, sideBounce, points)
           wallBouncePerSideBounce = map(lambda x, y: x / y, wallBounce, sideBounce)
-          avgServingTime = map(lambda x, y: x / y, servingTime, points)
+          avgServingTime = map(lambda x, y: x / y / 4, servingTime, points)
 
           data = (label, np.mean(sideBouncePerPoint), np.std(sideBouncePerPoint),
               np.mean(wallBouncePerSideBounce), np.std(wallBouncePerSideBounce),
@@ -66,8 +66,9 @@ with open("stats.tex","w") as output:
 stats = np.array(stats)
 x = range(1, stats.shape[0] + 1)
 
-mpl.rcParams['xtick.labelsize'] = 'smaller'
-mpl.rcParams['ytick.labelsize'] = 'smaller'
+mpl.rcParams['lines.linewidth'] = 2
+mpl.rcParams['xtick.labelsize'] = 'small'
+mpl.rcParams['ytick.labelsize'] = 'small'
 mpl.rcParams['axes.labelsize'] = 'small'
 mpl.rcParams['legend.fontsize'] = 'small'
 
@@ -75,20 +76,22 @@ dpi = 300
 plt.figure(figsize=(4,3))
 
 plt.errorbar(x, stats[:,0], yerr=stats[:,1])
-plt.ylabel("Paddlebounces per point")
+plt.ylabel("Paddle-bounces per point")
 #ax = plt.gca()
 #ax.set_yscale("log")
 plt.xticks(x, labels)
+plt.locator_params(axis='y', nbins=5)
 plt.xlim((0, len(x) + 1))
 plt.tight_layout()
 plt.savefig('sidebounces_per_point.png', dpi=dpi)
 
 plt.clf()
 plt.errorbar(x, stats[:,2], yerr=stats[:,3])
-plt.ylabel("Wallbounces per paddlebounce")
+plt.ylabel("Wall-bounces per paddle-bounce")
 #ax = plt.gca()
 #ax.set_yscale("log")
 plt.xticks(x, labels)
+plt.locator_params(axis='y', nbins=5)
 plt.xlim((0, len(x) + 1))
 plt.tight_layout()
 plt.savefig('wallbounces_per_sidebounce.png', dpi=dpi)
@@ -99,6 +102,7 @@ plt.ylabel("Serving time per point")
 #ax = plt.gca()
 #ax.set_yscale("log")
 plt.xticks(x, labels)
+plt.locator_params(axis='y', nbins=5)
 plt.xlim((0, len(x) + 1))
 plt.tight_layout()
 plt.savefig('serving_time_per_point.png', dpi=dpi)

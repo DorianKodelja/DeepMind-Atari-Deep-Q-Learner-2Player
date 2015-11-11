@@ -51,15 +51,17 @@ for csv_file, label in csv_files:
 
     sideBouncePerPoint.append(map(lambda x, y: x / y, sideBounce, points))
     wallBouncePerSideBounce.append(map(lambda x, y: x / y, wallBounce, sideBounce))
-    avgServingTime.append(map(lambda x, y: x / y, servingTime, points))
+    avgServingTime.append(map(lambda x, y: x / y / 4, servingTime, points))
 
 sideBouncePerPoint = np.array(sideBouncePerPoint)
 wallBouncePerSideBounce = np.array(wallBouncePerSideBounce)
 avgServingTime = np.array(avgServingTime)
 x = range(sideBouncePerPoint.shape[0]) * sideBouncePerPoint.shape[1]
+#x += 0.02 * np.random.randn(len(x))
 
-mpl.rcParams['xtick.labelsize'] = 'smaller'
-mpl.rcParams['ytick.labelsize'] = 'smaller'
+mpl.rcParams['lines.linewidth'] = 2
+mpl.rcParams['xtick.labelsize'] = 'small'
+mpl.rcParams['ytick.labelsize'] = 'small'
 mpl.rcParams['axes.labelsize'] = 'small'
 mpl.rcParams['legend.fontsize'] = 'small'
 
@@ -67,20 +69,22 @@ dpi = 300
 plt.figure(figsize=(4,3))
 
 plt.scatter(x, sideBouncePerPoint.T.ravel(), alpha = 0.5)
-plt.ylabel("Paddlebounces per point")
+plt.ylabel("Paddle-bounces per point")
 #ax = plt.gca()
 #ax.set_yscale("log")
 plt.xticks(x, labels)
+plt.locator_params(axis='y', nbins=5)
 plt.xlim((-1, sideBouncePerPoint.shape[0]))
 plt.tight_layout()
 plt.savefig('sidebounces_per_point_scatter.png', dpi=dpi)
 
 plt.clf()
 plt.scatter(x, wallBouncePerSideBounce.T.ravel(), alpha = 0.5)
-plt.ylabel("Wallbounces per paddlebounce")
+plt.ylabel("Wall-bounces per paddle-bounce")
 #ax = plt.gca()
 #ax.set_yscale("log")
 plt.xticks(x, labels)
+plt.locator_params(axis='y', nbins=5)
 plt.xlim((-1, wallBouncePerSideBounce.shape[0]))
 plt.tight_layout()
 plt.savefig('wallbounces_per_sidebounce_scatter.png', dpi=dpi)
@@ -91,6 +95,7 @@ plt.ylabel("Serving time per point")
 #ax = plt.gca()
 #ax.set_yscale("log")
 plt.xticks(x, labels)
+plt.locator_params(axis='y', nbins=5)
 plt.xlim((-1, avgServingTime.shape[0]))
 plt.tight_layout()
 plt.savefig('serving_time_per_point_scatter.png', dpi=dpi)
