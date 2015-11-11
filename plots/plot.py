@@ -5,12 +5,20 @@ import matplotlib as mpl
 
 csv_files = [
   "Pong2Player.csv",
-  "Pong2PlayerVS.csv" 
+  "Pong2PlayerVS.csv",
+#  "Pong2Player05p.csv",
 ]
 
 labels = [
   "Cooperative",
-  "Competitive"
+  "Competitive",
+#  "rho = 0.5",
+]
+
+suffixes = [
+  "cooperative",
+  "competitive",
+#  "05p",
 ]
 
 data = []
@@ -100,50 +108,29 @@ lgd = plt.legend(labels, loc="lower center", bbox_to_anchor=(0.41, 1.),
 plt.tight_layout()
 plt.savefig('serving_time_history.png', dpi=dpi, bbox_extra_artists=(lgd,), bbox_inches='tight')
 
-plt.clf()
-plt.plot(epochs[0][10:], means[0][10:,1])
-plt.locator_params(axis='y', nbins=5)
-plt.ylabel("Wall-bounces per paddle-bounce")
-plt.xlabel("Epoch")
-plt.tight_layout()
-plt.savefig('wallbounces_history_cooperative.png', dpi=dpi)
+for i, file_name in enumerate(csv_files):
+  plt.clf()
+  plt.plot(epochs[i][10:], means[i][10:,1])
+  plt.locator_params(axis='y', nbins=5)
+  plt.ylabel("Wall-bounces per paddle-bounce")
+  plt.xlabel("Epoch")
+  plt.tight_layout()
+  plt.savefig('wallbounces_history_%s.png' % suffixes[i], dpi=dpi)
 
-plt.clf()
-plt.plot(epochs[1][10:], means[1][10:,1])
-plt.locator_params(axis='y', nbins=5)
-plt.ylabel("Wall-bounces per paddle-bounce")
-plt.xlabel("Epoch")
-plt.tight_layout()
-plt.savefig('wallbounces_history_competitive.png', dpi=dpi)
+for i, file_name in enumerate(csv_files):
+  plt.clf()
+  plt.plot(epochs[i], means[i][:,0])
+  plt.locator_params(axis='y', nbins=5)
+  plt.ylabel("Paddle-bounces per point")
+  plt.xlabel("Epoch")
+  plt.tight_layout()
+  plt.savefig('sidebounces_history_%s.png' % suffixes[i], dpi=dpi)
 
-plt.clf()
-plt.plot(epochs[0], means[0][:,0])
-plt.locator_params(axis='y', nbins=5)
-plt.ylabel("Paddle-bounces per point")
-plt.xlabel("Epoch")
-plt.tight_layout()
-plt.savefig('sidebounces_history_cooperative.png', dpi=dpi)
-
-plt.clf()
-plt.plot(epochs[1], means[1][:,0])
-plt.locator_params(axis='y', nbins=5)
-plt.ylabel("Paddle-bounces per point")
-plt.xlabel("Epoch")
-plt.tight_layout()
-plt.savefig('sidebounces_history_competitive.png', dpi=dpi)
-
-plt.clf()
-plt.plot(epochs[0], means[0][:,2])
-plt.locator_params(axis='y', nbins=5)
-plt.ylabel("Serving time per point")
-plt.xlabel("Epoch")
-plt.tight_layout()
-plt.savefig('serving_time_history_cooperative.png', dpi=dpi)
-
-plt.clf()
-plt.plot(epochs[1], means[1][:,2])
-plt.locator_params(axis='y', nbins=5)
-plt.ylabel("Serving time per point")
-plt.xlabel("Epoch")
-plt.tight_layout()
-plt.savefig('serving_time_history_competitive.png', dpi=dpi)
+for i, file_name in enumerate(csv_files):
+  plt.clf()
+  plt.plot(epochs[i], means[i][:,2])
+  plt.locator_params(axis='y', nbins=5)
+  plt.ylabel("Serving time per point")
+  plt.xlabel("Epoch")
+  plt.tight_layout()
+  plt.savefig('serving_time_history_%s.png' % suffixes[i], dpi=dpi)
