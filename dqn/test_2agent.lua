@@ -97,7 +97,7 @@ servingTime=0
 totalRewardA = 0
 totalRewardB = 0
 -- play one episode (game)
-while not terminal and not crash do
+while not terminal do
     -- if action was chosen randomly, Q-value is 0
     agent.bestq = 0
     agentB.bestq = 0
@@ -112,6 +112,10 @@ while not terminal and not crash do
     --end
     -- play game in test mode (episodes don't end when losing a life)
     screen, rewardA,rewardB, terminal, sideBouncing,wallBouncing,points,crash,serving = game_env:step2(game_actions[action_index],game_actionsB[action_indexB], false)
+    if crash then
+       print("CRASHED!!!")
+       break
+    end
     if rewardA ~= 0 or rewardB ~= 0 then
        print(rewardA, rewardB, points)
     end
