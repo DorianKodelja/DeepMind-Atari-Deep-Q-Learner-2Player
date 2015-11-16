@@ -153,16 +153,17 @@ for i, file_name in enumerate(csv_files):
   plt.tight_layout()
   plt.savefig('wallbounces_history_%s.png' % suffixes[i], dpi=dpi)
 
-for i, file_name in enumerate(csv_files):
   plt.clf()
   plt.plot(epochs[i], means[i][:,0])
   plt.locator_params(axis='y', nbins=5)
   plt.ylabel("Paddle-bounces per point")
   plt.xlabel("Epoch")
+  #ax = plt.gca()
+  #ax.set_yscale("log")
+  #plt.ylim(ymin=-10)
   plt.tight_layout()
   plt.savefig('sidebounces_history_%s.png' % suffixes[i], dpi=dpi)
 
-for i, file_name in enumerate(csv_files):
   plt.clf()
   plt.plot(epochs[i], means[i][:,2])
   plt.locator_params(axis='y', nbins=5)
