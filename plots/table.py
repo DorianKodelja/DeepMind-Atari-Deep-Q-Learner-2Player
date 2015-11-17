@@ -60,7 +60,7 @@ with open("stats.tex","w") as output:
               np.mean(avgServingTime), np.std(avgServingTime))
           stats.append(data[1:])
 
-          output.write("%s & $ %.3f \pm %.3f $ & $ %.3f \pm %.3f $ & $ %.3f \pm %.3f $ \\\\\n" % data)
+          output.write("%s & $ %.2f \pm %.2f $ & $ %.2f \pm %.2f $ & $ %.2f \pm %.2f $ \\\\\n" % data)
           #output.write("\hline\n")
 
 stats = np.array(stats)
